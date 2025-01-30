@@ -28,7 +28,7 @@ sGs UnMix consists of five tab panels: Load data, Data, Mix model, Variogram, an
 
 <h2> 1. Load data panel </h2>
 
-<img src="https://paula-moraga.github.io/img/blogimg/2018-01-04_SpatialEpiApp/animation.gif" width="100%">
+<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/test.gif" width="100%">
 
 Use the `Separator` radio buttons to choose the correct column separator (comma in this instance), then click the `Browser` button to select and upload the file [cf_July2000.csv](https://raw.githubusercontent.com/giancarlotamburello/sGs_UnMix/refs/heads/main/data_examples/cf_July2000.csv). The .csv file should contain a minimum of three columns: two for coordinates (longitude and latitude with any geodetic datum) and one continuous variable for spatial prediction. It is important to select the separator before uploading the file. After that, in the `Select columns` field, the user must select in this order: 1) longitude, 2) latitude, and 3) the continuous variable for spatial prediction. No columns will appear in the `Select columns` field if an incorrect separator is selected. In that case, change the separator and re-upload the file.
 
