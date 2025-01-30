@@ -10,6 +10,7 @@ You can run this application locally, but it needs several packages to be instal
 
 ```r
 install.packages("shiny")
+install.packages("fields")
 install.packages("leaflet")
 install.packages("leaflet.extras")
 install.packages("leaflet.providers")
