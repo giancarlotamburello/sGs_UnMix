@@ -6,7 +6,7 @@ sGs UnMix can be used online at [http:\\shiny.bo.ingv.it:8790](http:\\shiny.bo.i
 
 <h1> App dependencies </h1>
 
-This application requires several packages to be installed for local execution. The code for manual installation is as follows:
+You can run this application locally, but it needs several packages to be installed. The code for manual installation is as follows:
 
 ```r
 install.packages("shiny")
@@ -23,12 +23,14 @@ install.packages("splancs")
 
 <h1> User Guide </h1>
 
-sGs UnMic consists of five tab panels: Load data, Data, Mix model, Variogram, and sGs. The Data panel shows data in a table on the left and a summary and histogram of a selected variable on the right. The remaining four panels have a left sidebar for inputs and a large main area for outputs, such as figures and tables. The sidebars contain several fields and a brief description to guide the user.
-
+sGs UnMix consists of five tab panels: Load data, Data, Mix model, Variogram, and sGs. The Data panel shows data in a table on the left and a summary and histogram of a selected variable on the right. The remaining four panels have a left sidebar for inputs and a large main area for outputs, such as figures and tables. The sidebars contain several fields and a brief description to guide the user. A new user can take these steps to analyze the example found in data_examples.
 
 <h2> 1. Load data panel </h2>
 
-Test
+Use the `Separator` radio buttons to choose the correct column separator (comma in this instance), then click the `Browser` button to select and upload the file `example1.csv`. The .csv file should contain a minimum of three columns: two for coordinates (longitude and latitude with any geodetic datum) and one continuous variable for spatial prediction. It is important to select the separator before uploading the file. After that, in the `Select columns` field, the user must select in this order: 1) longitude, 2) latitude, and 3) the continuous variable for spatial prediction. No columns will appear in the `Select columns` field if an incorrect separator is selected. In that case, change the separator and re-upload the file.
+
+The geodetic datum of the coordinate system must be specified as an EPSG numeric code (available at https://epsg.io). If coordinates are expressed as decimal longitude and latitude (EPSG: 4326), only the `Output EPSG` field has to be filled with the corresponding EPSG code. In our example the user must insert [32633](https://epsg.io/32633). Otherwise, if the coordinates are not decimal WGS84, only the Input EPSG field must be compiled.  The spatial points are plotted on a GIS layer (Esri World Imagery by default) and colored with a viridis gradient to have a first glance at the spatial variability of the data (Fig. 2a). The color scale can be switched from logarithmic to raw data through a panel on the right side of the map, along with others color palette. The user can navigate into the interactive world map and choose the preferred GIS-layer between ESRI World Imagery and OpenStreetMap. In addition, one can measure distances or areas through the rectangle above the polygon on the left side of the map. Last, the user has to draw a perimeter on the map to enclose the data to process (Fig. 2b). This can be done by drawing a rectangle or a polygon. Alternatively, a .csv with the vertices of a polygon can be uploaded (and downloaded). The Remove polygon button can remove the uploaded polygon to define a new perimeter.
+
 
 <h2> 2. Data panel </h2>
 
