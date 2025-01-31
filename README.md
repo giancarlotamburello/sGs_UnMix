@@ -28,7 +28,7 @@ sGs UnMix consists of five tab panels: Load data, Data, Mix model, Variogram, an
 
 <h2> 1. Load data panel </h2>
 
-<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/test.gif" width="100%">
+<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/sgsunmix_loaddata.gif" width="100%">
 
 Use the `Separator` radio buttons to choose the correct column separator (comma in this instance), then click the `Browser` button to select and upload the file [cf_July2000.csv](https://raw.githubusercontent.com/giancarlotamburello/sGs_UnMix/refs/heads/main/data_examples/cf_July2000.csv). The .csv file should contain a minimum of three columns: two for coordinates (longitude and latitude with any geodetic datum) and one continuous variable for spatial prediction. It is important to select the separator before uploading the file. After that, in the `Select columns` field, the user must select in this order: 1) longitude, 2) latitude, and 3) the continuous variable for spatial prediction. No columns will appear in the `Select columns` field if an incorrect separator is selected. In that case, change the separator and re-upload the file.
 
@@ -38,17 +38,24 @@ The user must draw a perimeter on the map to enclose the data for processing. Th
 
 <h2> 2. Data panel </h2>
 
+<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/sgsunmix_data.gif" width="100%">
+
 This panel enables you to review the imported data set. The table lets you examine individual values and search through them. On the right, a panel allows you to select each column of the dataset and view a statistical summary (`Summary`) and a frequency histogram (`Visualization`).
 
 <h2> 3. Mix model tab panel </h2>
+
+<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/sgsunmix_mix.gif" width="100%">
 
 This panel enables the total density distribution of the data to be unmixed into two or more individual populations, which could reflect different data sources. By default, the sidebar panel is set on an automatic fitting procedure, that is sGs UnMix considers the distribution of the data as made by two lognormal populations and their means, standard deviations, and proportions are calculated using the EM-algorithm by maximizing the log-likelihood. Data distribution can be changed from lognormal to normal, enabling one to work with negative values. The user can change the number of populations in automatic mode or can decide to manually fit the distribution by switching to Manual fit and specifying the parameters defining each individual population in the Mean and St. dev. fields. Alternatively, the user can specify initial parameters using the Initial Guess mode, which is then accommodated by the web app to find the best solution. The log-likelihood output in the sidebar panel provides a measure of the goodness of fit, whose higher the value, the better the fit. To help select the proper number of populations while avoiding overfitting, the user can calculate information criteria, such as the Akaike Information Criterion  (Akaike, 1973). The parameters defined for each population are printed at the bottom of the sidebar and the results are displayed in the main area of the tab panel as density and Q-Q (Quantile-Quantile) plots. The Q-Q plot is a graphical tool used to compare the distribution of a dataset to a theoretical distribution. A single normal distribution appears as a 45° line in the Q-Q plot, whereas n normal populations result in n lines combined by n–1 inflection points. Both density and Q-Q plots can be downloaded as PDF by selecting the Save Plot as PDF button.
 
 <h2> 4. Variogram tab panel </h2>
 
+<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/sgsunmix_variogram.gif" width="100%">
+
 Test
 
 <h2> 5. sGs tab panel </h2>
+
 
 
 
