@@ -56,8 +56,9 @@ Test
 
 <h2> 5. sGs tab panel </h2>
 
-
+<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/sgsunmix_sgs1.gif" width="100%">
 
 
 Test
 
+<img src="https://github.com/giancarlotamburello/sGs_UnMix/blob/main/GIF/sgsunmix_sgs2.gif" width="100%">
