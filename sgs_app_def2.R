@@ -1,5 +1,4 @@
 # Load necessary libraries
-#libloc="/home/giancarlo.tamburello/R/x86_64-pc-linux-gnu-library/4.4"
 
 options(warn=0)
 
@@ -17,10 +16,8 @@ library(raster)
 library(splancs)
 library(viridis)
 
-
-source("/home/giulio.bini/sgs_app/coord_trans.R")
-source("/home/giulio.bini/sgs_app/unmix_function.R")
-
+source("coord_trans.R")
+source("unmix_function.R")
 
 # Define UI for the application
 ui <- 
@@ -1511,11 +1508,5 @@ server <- function(input, output, session) {
 }
 
 # Run the application 
-runApp(
-  list(ui = ui, server = server),
-  host = getOption("shiny.host", "0.0.0.0"),
-  port = getOption("shiny.port", 8792),
-  quiet = F,
-  launch.browser =T
-)
+shinyApp(ui = ui, server = server)
 
