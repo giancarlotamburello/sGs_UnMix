@@ -24,6 +24,7 @@ install.packages("gstat")
 install.packages("sp")
 install.packages("raster")
 install.packages("splancs")
+install.packages("terra")
 ```
 
 <h1> User Guide </h1>
