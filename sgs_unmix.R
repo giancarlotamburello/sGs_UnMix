@@ -1272,18 +1272,18 @@ server <- function(input, output, session) {
     values$CO2out <- c(gas.out.tot, gas.out.sd,area.out)
     
     if (is.na(input$epsg.in)) {
-      epsg=paste0("+init=epsg:",input$epsg.out)
+      epsg=paste0("epsg:",input$epsg.out)
     }else{
-      epsg=paste0("+init=epsg:",input$epsg.in)
+      epsg=paste0("epsg:",input$epsg.in)
     }
     
-    values$raster <- rasterFromXYZ(df.mean[,1:3],crs=CRS(epsg))
+    values$raster <- rast(df.mean[,1:3],type="xyz",crs=epsg)
     
     if (is.na(input$prob.thres)) {
       df.mean[,4] <- NA
-      values$raster.p <- rasterFromXYZ(df.mean[,c(1:2,4)],crs=CRS(epsg))
+      values$raster.p <- rast(df.mean[,c(1:2,4)],type="xyz",crs=epsg)
     }else{
-      values$raster.p <- rasterFromXYZ(df.mean[,c(1:2,4)],crs=CRS(epsg))
+      values$raster.p <- rast(df.mean[,c(1:2,4)],type="xyz",crs=epsg)
     }
   })
   
