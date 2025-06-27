@@ -1,8 +1,5 @@
 # Load necessary libraries
 
-options(warn=0)
-
-#library(bslib)
 library(fields)
 library(shiny)
 library(leaflet)
@@ -18,6 +15,7 @@ library(viridis)
 
 source("coord_trans.R")
 source("unmix_function.R")
+
 
 # Define UI for the application
 ui <- 
@@ -43,15 +41,14 @@ ui <-
                                   sidebarLayout(
                                     sidebarPanel(
                                       
-                                      # Help text
-                                      helpText("1) Select the appropriate column separator (comma by defaults) and upload the csv file.",br(),br(),
-                                               "2) Select 3 columns ordered as: longitude, latitude, and a numerical variable (e.g., soil CO₂ flux or T)",br(),br(),
-                                               "3) Enter the correct EPSG codes:",br(),
-                                               "  3a) If longitude and latitude are decimal WGS84, enter the output EPSG for converting into UTM 
-                                               (list of EPSG code are available at https://epsg.io/).",br(),
-                                               "  3b) If longitude and latitude are not decimal WGS84, enter the proper input EPSG code and leave output EPSG empty.",
-                                               br(),br()
-                                      ),
+                                      fluidRow(column(3,
+                                                      actionButton("help.load",icon = icon("paperclip"), "Help", align = "center"
+                                                                   , style = "margin-bottom: -20px;"
+                                                                   , style = "margin-top: 20px;"))),
+                                      br(), br(),
+                                      
+                                      
+                                     
                                       
                                       ########
                                       # Row with separator selector and file input button
@@ -106,7 +103,7 @@ ui <-
                                     mainPanel(
                                       leafletOutput("mymap",height = 800),
                                       absolutePanel(
-                                        top = 250, right = 30, draggable = F, 
+                                        top = 250, right = 30, draggable = T, 
                                         style = "z-index: 500; background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; width: 100px;",
                                         selectInput(
                                           inputId = "palette0",
@@ -129,41 +126,41 @@ ui <-
                          # 2 PANEL Data table 
                          
                          tabPanel("Data", fluid = TRUE, icon = icon("table"),
-                           fluidRow(
-                             # Left column with dynamic width
-                             column(
-                               width = 8, # Half the page width
-                               div(
-                                 style = "width: 100%; float: left; overflow-x: auto;", # Use full available space
-                                 h4("Full Data Table"),
-                                 DTOutput("table")
-                               )
-                             ),
-                             
-                             # Right column with dynamic width
-                             column(
-                               width = 4, # Half the page width
-                               div(
-                                 style = "width: 100%; float: right; overflow-x: auto;", # Use full available space
-                                 h4("Variable Summary and Visualization"),
-                                 selectInput(
-                                   "variable", 
-                                   "Select a Variable:",
-                                   choices = NULL
-                                 ),
-                                 tabsetPanel(
-                                   tabPanel(
-                                     "Summary",
-                                     DTOutput("summary_table") # Summary table
-                                   ),
-                                   tabPanel(
-                                     "Visualization",
-                                     plotOutput("variable_plot") # Visualization
-                                   )
-                                 )
-                               )
-                             )
-                           )
+                                  fluidRow(
+                                    # Left column with dynamic width
+                                    column(
+                                      width = 8, # Half the page width
+                                      div(
+                                        style = "width: 100%; float: left; overflow-x: auto;", # Use full available space
+                                        h4("Full Data Table"),
+                                        DTOutput("table")
+                                      )
+                                    ),
+                                    
+                                    # Right column with dynamic width
+                                    column(
+                                      width = 4, # Half the page width
+                                      div(
+                                        style = "width: 100%; float: right; overflow-x: auto;", # Use full available space
+                                        h4("Variable Summary and Visualization"),
+                                        selectInput(
+                                          "variable", 
+                                          "Select a Variable:",
+                                          choices = NULL
+                                        ),
+                                        tabsetPanel(
+                                          tabPanel(
+                                            "Summary",
+                                            DTOutput("summary_table") # Summary table
+                                          ),
+                                          tabPanel(
+                                            "Visualization",
+                                            plotOutput("variable_plot") # Visualization
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
                          ),
                          
                          #########
@@ -172,18 +169,12 @@ ui <-
                          tabPanel("Mix model", fluid = TRUE, icon = icon("chart-area"), 
                                   sidebarPanel(
                                     
-                                    #titlePanel(h3("Mix model")),
-                                    helpText("This panel enables the unmixing of populations describing the empirical distribution of the data.",br(),br(),
-                                             "By default, the distribution of the data is automatically fitted by two populations defined through unsupervised clustering. 
-                                               The goodness of fit is expressed as log-likelihood.",br(),br(),
-                                             "In both automatic and manual mode, you can change the number of populations used to fit the distribution of the data.",br(),
-                                             "  In automatic mode, you can insert mean and std.dev values of the populations, which will be used as starting values to find the best fit.", br(),
-                                             "  In manual mode, you can manually constrain the mean and std.dev values of the populations.",
-                                             br(),br(),
-                                             "The App returns the mean, std.dev and proportion of each populations, calculated through a Monte Carlo procedure.",
-                                             br(),br(),
-                                             
-                                    ),
+                                    fluidRow(column(3,
+                                                    actionButton("help.mix",icon = icon("paperclip"), "Help", align = "center"
+                                                                 , style = "margin-bottom: -20px;"
+                                                                 , style = "margin-top: 20px;"))),
+                                    br(), br(),
+                                    
                                     
                                     ########
                                     # Row with mix fit options and log-likelihood
@@ -253,107 +244,255 @@ ui <-
                          # 4 PANEL Variogram
                          
                          tabPanel("Variogram", fluid = TRUE,  icon =  icon("chart-line"), # icon("bar-chart-o", lib = "glyphicon")
-                                  # Sidebar layout with an input and output definitions
-                                  sidebarLayout(position = "left",
-                                                sidebarPanel(
-                                                  #titlePanel(h3("Variogram")),
-                                                  helpText("By default, the experimental variogram is automatically fitted with a spherical variogram model 
-                                  by weighted least squares. The goodness of fit is expressed as RSE. You can change the variogram
-                                  model, lag distance, and robust in both auto and manual mode.", br(), br(),
-                                                           "By choosing the manual mode, you are also able to
-                                  adjust the nugget, partial sill, and range of the variogram model.",br(), br(),
-                                                           "The robust method enables us to lower the nugget effect in case of outliers.", br(), br(),
-                                                           "The lag distance is the distance of subsequent intervals into which pairs of data points are grouped 
-                                  for estimating the semivariance. It is automatically calculated by the software. If you want to change it,
-                                  we recommend to choose a lag distance at least 5 m larger than the average
-                                  distance between points. For example, if your grid has a 50 m-spacing, choose a lag distance of 55 m.",
-                                                           br(),br()
-                                                  ),
-                                                  
-                                                  ########
-                                                  # Selection of variogram fit mode and SSE calculation
-                                                  
-                                                  fluidRow(
-                                                    column(3,
-                                                           radioButtons("fit", 
-                                                                        label = h4("Fit"), 
-                                                                        choices = c("Automatic", "Manual"), selected = "Automatic")
-                                                    ),
-                                                    column(7, offset = 2,
-                                                           h4("SSE"),
-                                                           textOutput("ssr"),
-                                                           helpText("* The lower the Sum of Squared Errors (SSE),
+                                  tabsetPanel(id = "vardirtab",
+                                              tabPanel("Omnidirectional",
+                                                       # Sidebar layout with an input and output definitions
+                                                       sidebarLayout(position = "left",
+                                                                     sidebarPanel(
+                                                                       
+                                                                       fluidRow(column(3,
+                                                                                       actionButton("help.omni",icon = icon("paperclip"), "Help", align = "center"
+                                                                                                    , style = "margin-bottom: -20px;"
+                                                                                                    , style = "margin-top: 20px;"))),
+                                                                       br(), br(),
+                                                                       
+                                                                       ########
+                                                                       # Selection of variogram fit mode and SSE calculation
+                                                                       
+                                                                       fluidRow(
+                                                                         column(3,
+                                                                                radioButtons("fit", 
+                                                                                             label = h4("Fit"), 
+                                                                                             choices = c("Automatic", "Manual"), selected = "Automatic")
+                                                                         ),
+                                                                         column(7, offset = 2,
+                                                                                h4("SSE"),
+                                                                                textOutput("ssr"),
+                                                                                helpText("* The lower the Sum of Squared Errors (SSE),
                                            the better the variogram fit")
-                                                    )),
-                                                  
-                                                  ########
-                                                  # Selection of variogram fit type, lag distance, calculated auto lag distance and robust variogram flag
-                                                  
-                                                  fluidRow(
-                                                    column(3,
-                                                           selectInput("varType",
-                                                                       label= "Variogram model", 
-                                                                       choices = c("Spherical", "Exponential", "Pentaspherical", "Gaussian", 
-                                                                                   "Circular","Linear",
-                                                                                   "Bessel"), selected = "Spherical")
-                                                    ),
-                                                    column(2,
-                                                           numericInput("lag_dist", label = "Lag distance", value = NA, step = 1)),
-                                                    column(3,
-                                                           h6("Auto Lag distance"),textOutput("calc.dist")),
-                                                    column(2,
-                                                           checkboxInput(inputId = "robust", 
-                                                                         label = "Robust",
-                                                                         value = F)
-                                                    )),
-                                                  
-                                                  ########
-                                                  # Selection of nugget, partial sill and range only for manual mode
-                                                  
-                                                  fluidRow(
-                                                    column(3,
-                                                           numericInput("nugget", 
-                                                                        label = "Nugget", 
-                                                                        value = NA, step = 0.01)
-                                                    ),
-                                                    column(3,
-                                                           numericInput("psill", 
-                                                                        label = "Partial sill", 
-                                                                        value = NA, step = 0.01)
-                                                    ),
-                                                    column(3,
-                                                           numericInput("range", 
-                                                                        label = "Range", 
-                                                                        value = NA)
-                                                    ))
-                                                ),
-                                                
-                                                
-                                                mainPanel(
-                                                  tabPanel("Plot",
-                                                           column(
-                                                             width=8,
-                                                             fluidRow(
-                                                               column(width = 10, plotOutput("varPlot", height = 450))
-                                                             ),
-                                                             fluidRow(
-                                                               column(width = 10, plotOutput("varCloudPlot", height = 450))
-                                                             )
-                                                           ),
-                                                           
-                                                           column(
-                                                             width = 4,
-                                                             tableOutput("varTable"),
-                                                             br(), 
-                                                             downloadButton("download_table", "Save Table as CSV"),
-                                                             br(), br(), 
-                                                             downloadButton("download_plot", "Save Plot as PDF")
-                                                           )
-                                                  )
-                                                  
-                                                )
-                                  )
-                         ),
+                                                                         )
+                                                                       ),
+                                                                       
+                                                                       ########
+                                                                       # Selection of single or nested variogram
+                                                                       
+                                                                       fluidRow( # <---- REVIEW
+                                                                         column(3,
+                                                                                radioButtons("nes", 
+                                                                                             label = h4("Type"), 
+                                                                                             choices = c("Single", "Nested"), selected = "Single")
+                                                                         )
+                                                                       ), # <---- REVIEW
+                                                                       
+                                                                       
+                                                                       ########
+                                                                       # Selection of variogram fit type, lag distance, calculated auto lag distance and robust variogram flag
+                                                                       
+                                                                       fluidRow(
+                                                                         column(3,
+                                                                                selectInput("varType",
+                                                                                            label= "Variogram model",
+                                                                                            choices = c("Spherical", "Exponential", "Pentaspherical", "Gaussian", 
+                                                                                                        "Circular","Linear",
+                                                                                                        "Bessel"), selected = "Spherical")
+                                                                         ),
+                                                                         column(2,
+                                                                                numericInput("lag_dist", label = "Lag distance", value = NA, step = 1)),
+                                                                         column(3,
+                                                                                h6("Auto Lag distance"),textOutput("calc.dist")),
+                                                                         column(2,
+                                                                                checkboxInput(inputId = "robust", 
+                                                                                              label = "Robust",
+                                                                                              value = F)
+                                                                         )),
+                                                                       
+                                                                       ########
+                                                                       # Selection of nugget, partial sill and range only for manual mode
+                                                                       
+                                                                       fluidRow(
+                                                                         column(3,
+                                                                                numericInput("nugget", 
+                                                                                             label = "Nugget", 
+                                                                                             value = NA, step = 0.01)
+                                                                         ),
+                                                                         column(3,
+                                                                                numericInput("psill", 
+                                                                                             label = "Partial sill", 
+                                                                                             value = NA, step = 0.01)
+                                                                         ),
+                                                                         column(3,
+                                                                                numericInput("range", 
+                                                                                             label = "Range", 
+                                                                                             value = NA)
+                                                                         )),
+                                                                       
+                                                                       
+                                                                       ########
+                                                                       # Selection of partial sill and range for nested variogram -- only for manual mode
+                                                                       
+                                                                       conditionalPanel( # <---- REVIEW
+                                                                         condition = "input.nes == 'Nested'",
+                                                                         fluidRow(
+                                                                           column(3,
+                                                                                  selectInput("varType2",
+                                                                                              label= "2 Variogram model", 
+                                                                                              choices = c("Spherical", "Exponential", "Pentaspherical", "Gaussian", 
+                                                                                                          "Circular","Linear",
+                                                                                                          "Bessel"), selected = "Spherical")
+                                                                           ),
+                                                                           column(3,
+                                                                                  numericInput("psill2", 
+                                                                                               label = "2 Partial sill", 
+                                                                                               value = NA, step = 0.01)
+                                                                           ),
+                                                                           column(3,
+                                                                                  numericInput("range2", 
+                                                                                               label = "2 Range", 
+                                                                                               value = NA)
+                                                                           )
+                                                                           
+                                                                         )
+                                                                       ) # <---- REVIEW
+                                                                     ),
+                                                                     
+                                                                     
+                                                                     mainPanel(
+                                                                       tabPanel("Plot",
+                                                                                column(
+                                                                                  width=8,
+                                                                                  fluidRow(
+                                                                                    column(width = 10, plotOutput("varPlot", height = 450))
+                                                                                  ),
+                                                                                  fluidRow(
+                                                                                    column(width = 10, plotOutput("varCloudPlot", height = 450))
+                                                                                  )
+                                                                                ),
+                                                                                
+                                                                                column(
+                                                                                  width = 4,
+                                                                                  downloadButton("download_table", "Save Table as CSV"),
+                                                                                  br(), br(), 
+                                                                                  downloadButton("download_plot", "Save Plot as PDF"),
+                                                                                  br(),br(),
+                                                                                  tableOutput("varTable")
+                                                                                  
+                                                                                )
+                                                                       )
+                                                                       
+                                                                     )
+                                                       )
+                                              ),
+                                              tabPanel("Anisotropic",
+                                                       # Sidebar layout with an input and output definitions
+                                                       sidebarLayout(position = "left",
+                                                                     sidebarPanel(
+                                                                       
+                                                                       fluidRow(column(3,
+                                                                                       actionButton("help.anis",icon = icon("paperclip"), "Help", align = "center"
+                                                                                                    , style = "margin-bottom: -20px;"
+                                                                                                    , style = "margin-top: 20px;"))),
+                                                                       br(), br(),
+                                                                       
+                                                                       ########
+                                                                       # Selection of variogram fit mode and SSE calculation
+                                                                       
+                                                                       fluidRow(
+                                                                         column(3,
+                                                                                textInput("an.dir", 
+                                                                                          label = "Directions", 
+                                                                                          value = "0,45,90,135")
+                                                                         ),
+                                                                         column(7, offset = 2,
+                                                                                h4("SSE"),
+                                                                                textOutput("an.ssr"),
+                                                                                helpText("* The lower the Sum of Squared Errors (SSE),
+                                                                      the better the variogram fit")
+                                                                         )
+                                                                       ),
+                                                                       fluidRow(
+                                                                         column(2, 
+                                                                                numericInput("an.maindir", 
+                                                                                             label = "Main dir", 
+                                                                                             value = "45")
+                                                                                
+                                                                         ),
+                                                                         column(2,
+                                                                                numericInput("an.ratio", 
+                                                                                             label = "Ratio", 
+                                                                                             value = "0.4")
+                                                                                
+                                                                                
+                                                                         )
+                                                                       ),
+                                                                       
+                                                                       
+                                                                       ########
+                                                                       # Selection of variogram fit type, lag distance, calculated auto lag distance and robust variogram flag
+                                                                       
+                                                                       fluidRow(
+                                                                         column(3,
+                                                                                selectInput("an.varType",
+                                                                                            label= "Variogram model", 
+                                                                                            choices = c("Spherical" = "Sph", "Exponential" = "Exp", "Pentaspherical" = "Pen", "Gaussian" = "Gau", 
+                                                                                                        "Circular" = "Cir","Linear" = "Lin","Bessel" = "Bes"), selected = "Spherical")
+                                                                         ),
+                                                                         column(2,
+                                                                                numericInput("an.lag_dist", label = "Lag distance", value = NA, step = 1)),
+                                                                         column(3,
+                                                                                h6("Auto Lag distance"),textOutput("an.calc.dist")),
+                                                                       ),
+                                                                       
+                                                                       ########
+                                                                       # Selection of nugget, partial sill and range only for manual mode
+                                                                       
+                                                                       fluidRow(
+                                                                         column(3,
+                                                                                numericInput("an.nugget", 
+                                                                                             label = "Nugget", 
+                                                                                             value = NA, step = 0.01)
+                                                                         ),
+                                                                         column(3,
+                                                                                numericInput("an.psill", 
+                                                                                             label = "Partial sill", 
+                                                                                             value = NA, step = 0.01)
+                                                                         ),
+                                                                         column(3,
+                                                                                numericInput("an.range", 
+                                                                                             label = "Range", 
+                                                                                             value = NA)
+                                                                         )),
+                                                                       
+                                                                       
+                                                                     ),
+                                                                     
+                                                                     
+                                                                     mainPanel(
+                                                                       tabPanel("Plot",
+                                                                                column(
+                                                                                  width=8,
+                                                                                  fluidRow(
+                                                                                    column(width = 10, plotOutput("varMapPlot", height = 450))
+                                                                                  ),
+                                                                                  fluidRow(
+                                                                                    column(width = 10, plotOutput("varDirPlot", height = 450))
+                                                                                  )
+                                                                                ),
+                                                                                
+                                                                                column(
+                                                                                  width = 4,
+                                                                                  downloadButton("an.download_table", "Save Table as CSV"),
+                                                                                  br(), br(), 
+                                                                                  downloadButton("an.download_plot", "Save Plot as PDF"),
+                                                                                  br(),br(),
+                                                                                  tableOutput("an.varTable")
+                                                                                )
+                                                                       )
+                                                                       
+                                                                     )
+                                                       )
+                                                       
+                                                       
+                                              ))),
                          
                          
                          #########
@@ -362,16 +501,11 @@ ui <-
                          tabPanel("sGs", fluid = TRUE, icon = icon("globe-americas"),
                                   sidebarLayout(position = "left",
                                                 sidebarPanel(
-                                                  helpText(br(),
-                                                           "In this panel, you can simulate the variable at unsampled locations through sGs, for constructing maps",
-                                                           br(),br(),
-                                                           "Delta X and Y reflect the spacing of the cells where simulation will be performed.", br(), br(),
-                                                           "By default, the number of simulations is set to 200. By pressing Run sGs, the software will compute
-                                  200 simulations and average the value in each center of the cells. After a few seconds the map is visualized.
-                                  You can adjust the color scale and the trasparency of the map by adjusting Z min, Z max, and Opacity, and pressing the refresh button.
-                                  It is also possible to download the raster of the map."
-                                                           
-                                                  ),
+                                                  fluidRow(column(3,
+                                                                  actionButton("help.sgs",icon = icon("paperclip"), "Help", align = "center"
+                                                                               , style = "margin-bottom: -20px;"
+                                                                               , style = "margin-top: 20px;"))),
+                                                  br(), br(),
                                                   fluidRow(
                                                     column(3, offset = 1, 
                                                            numericInput("xmin",
@@ -386,7 +520,7 @@ ui <-
                                                     column(3, offset = 1, 
                                                            numericInput("dx",
                                                                         label = "Delta X:",
-                                                                        value=5,min = 1)
+                                                                        value=10,min = 1)
                                                     )),
                                                   fluidRow(
                                                     column(3, offset = 1, 
@@ -402,13 +536,13 @@ ui <-
                                                     column(3, offset = 1, 
                                                            numericInput("dy",
                                                                         label = "Delta Y:",
-                                                                        value=5,min = 1)
+                                                                        value=10,min = 1)
                                                     )),
                                                   fluidRow(
                                                     column(3, offset = 1, 
                                                            numericInput("nsims",
                                                                         label = "Number simulations:",
-                                                                        value=200,max = 1000,min = 10)
+                                                                        value=100,max = 1000,min = 10)
                                                     ),
                                                     column(3, offset = 1, 
                                                            numericInput("prob.thres",
@@ -438,7 +572,28 @@ ui <-
                                                            column(numericInput("raster.opacity", "Opacity",
                                                                                min = 0, max = 1,step = 0.1,
                                                                                value = 1),width = 2),
-                                                           column(actionButton("refresh","", icon = icon("refresh"), align = "center"
+                                                           column(actionButton("refresh","", icon = icon("eye"), align = "center"
+                                                                               , style = "margin-bottom: -24px;"
+                                                                               , style = "margin-top: 24px;"),width=2)
+                                                  ),
+                                                  fluidRow(
+                                                    h5("Error Map")),
+                                                  fluidRow(style = "margin-top: -3em;",
+                                                           hr(),
+                                                           column(3, offset = 1, 
+                                                                  numericInput("zmin2",
+                                                                               label = "Z min:",
+                                                                               value=NA)
+                                                           ),
+                                                           column(3, offset = 1, 
+                                                                  numericInput("zmax2",
+                                                                               label = "Z max:",
+                                                                               value=NA)
+                                                           ),
+                                                           column(numericInput("raster.opacity2", "Opacity",
+                                                                               min = 0, max = 1,step = 0.1,
+                                                                               value = 1),width = 2),
+                                                           column(actionButton("refresh2","", icon = icon("eye"), align = "center"
                                                                                , style = "margin-bottom: -24px;"
                                                                                , style = "margin-top: 24px;"),width=2)
                                                   ),
@@ -461,7 +616,7 @@ ui <-
                                                            column(numericInput("raster.opacity1", "Opacity",
                                                                                min = 0, max = 1,step = 0.1,
                                                                                value = 1),width = 2),
-                                                           column(actionButton("refresh1","", icon = icon("refresh"), align = "center"
+                                                           column(actionButton("refresh1","", icon = icon("eye"), align = "center"
                                                                                , style = "margin-bottom: -24px;"
                                                                                , style = "margin-top: 24px;"),width=2)
                                                   ),
@@ -487,7 +642,7 @@ ui <-
                                                 mainPanel(
                                                   leafletOutput("mymap2",height = 800),
                                                   absolutePanel(
-                                                    top = 250, right = 30, draggable = F, 
+                                                    top = 250, right = 30, draggable = T, 
                                                     style = "z-index: 500; background-color: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; width: 100px;",
                                                     selectInput(
                                                       inputId = "palette1",
@@ -508,9 +663,15 @@ ui <-
                                                                    style = "margin-bottom: -20px; margin-top: 20px;")
                                                   ),
                                                   absolutePanel(
-                                                    top = 520, right = 30, draggable = F, 
+                                                    top = 510, right = 30, draggable = F, 
                                                     style = "z-index: 500",
                                                     downloadButton("downloadRaster1", "Save Prob. raster",
+                                                                   style = "margin-bottom: -20px; margin-top: 20px;")
+                                                  ),
+                                                  absolutePanel(
+                                                    top = 550, right = 30, draggable = F, 
+                                                    style = "z-index: 500",
+                                                    downloadButton("downloadRaster2", "Save Error raster",
                                                                    style = "margin-bottom: -20px; margin-top: 20px;")
                                                   )
                                                 )
@@ -535,7 +696,11 @@ server <- function(input, output, session) {
                            selected.tab=NULL,
                            raster=NULL,
                            raster.p=NULL,
-                           utm.coord=NULL)
+                           raster.sd=NULL,
+                           utm.coord=NULL,
+                           data.var.an=NULL,
+                           data.vm.an=NULL,
+                           an.sse=NULL)
   
   #############
   # 1 PANEL Map
@@ -860,6 +1025,8 @@ server <- function(input, output, session) {
       
       par(mfrow=c(1,2), cex.axis=1.4, cex.lab=1.6, cex.main=1.4, family="Arial")
       
+      par(mar = c(5.1, 5.1, 4.1, 2.1))
+      
       if (fit0 == "Automatic"){
         
         unmix.data <- unmix(data$Z, n.pop=npop, breaks="fd", adj.density = 1, theor.density=FALSE, is.log10=TRUE,lab=lab)
@@ -977,7 +1144,106 @@ server <- function(input, output, session) {
   ###################
   
   ########
-  # Variogram plot and calculation
+  # ANISOTROPIC variogram plot and calculation
+  
+  output$varMapPlot <- renderPlot({
+    
+    req(values$df)
+    
+    Sys.sleep(0.3)
+    
+    data <- values$df[input$columns]
+    data <- na.omit(data)
+    names(data) <- c("X", "Y", "Z")
+    
+    if (!is.na(input$epsg.out)) {
+      data[,c("X","Y")] <- coord.trans(data[,c("X","Y")], epsg.in = 4326, epsg.out = input$epsg.out)
+    }
+    
+    if(!is.null(values$df.poly)){
+      data <- data[inout(data[, 1:2], values$df.poly),] 
+    }
+    
+    data.qq <- as.data.frame(qqnorm(data$Z, plot.it = FALSE))
+    data$Z <- data.qq$x
+    coordinates(data) <- c("X", "Y")
+    
+    data <- remove.duplicates(data)
+    
+    if(is.na(input$an.lag_dist)){
+      data.var0 <- gstat::variogram(Z ~ 1, data, width=NULL) # cutoff=cutoff0
+      
+      dist.substr <- NULL
+      for (i in 1:length(data.var0$dist)) { # <--
+        dist.substr[i] <- data.var0$dist[i+1] -data.var0$dist[i]
+        ave.dist <- round(mean(dist.substr, na.rm=T), 1)
+      }
+      values$an.calc.dist <- ave.dist
+    }
+    else{
+      #updateNumericInput(session, "lag_dist", value = ave.dist)
+      ave.dist <- input$an.lag_dist
+    }
+    
+    alpha.dirs <- as.numeric(unlist(strsplit(input$an.dir,",")))
+    
+    # Directional
+    values$data.var.an <- gstat::variogram(Z ~ 1, data, width=ave.dist, alpha=alpha.dirs, tol.hor=22.5)
+    values$data.vm.an <- vgm(psill=input$an.psill, model= input$an.varType, range=input$an.range, nugget=input$an.nugget, anis = c(input$an.maindir, input$an.ratio))
+    
+    ii <- values$data.var.an$dir.hor == input$an.maindir
+    
+    # SSE calculation:
+    fitted_values <- variogramLine(values$data.vm.an, dist_vector = values$data.var.an$dist[ii])
+    residual <- fitted_values$gamma - values$data.var.an$gamma[ii]
+    weight <- values$data.var.an$np[ii]/(values$data.var.an$dist[ii]^2)
+    values$an.sse <- sum(weight*residual^2)
+    
+    
+    vgm.map <- variogram(Z ~ 1, data, cutoff=input$an.range*3, width = ave.dist, map = TRUE)
+    
+    values$var.list <- list(data,data.vm = values$data.vm.an,data.qq,vgm.map)
+
+    
+    if(values$data.var.an$np[1] < 30){
+      showNotification("A number of pairs > 30 is recommended (Journel and Huijbregts, 1978)",
+                       type =  "message",duration =NULL,)
+      
+    }
+    
+    if(input$an.nugget > 0.5){
+      showNotification("A nugget value > 0.5 might indicate poor spatial continuity at short scale. Please consider removing any outliers or using a robust variogram estimator.",
+                       type =  "message",duration =NULL,)
+      
+    }
+    
+    
+    plot(vgm.map, threshold = 5)
+    
+  })
+  
+  output$varDirPlot <- renderPlot({
+    plot(values$data.var.an, values$data.vm.an, as.table = TRUE)
+  })
+  
+  output$an.ssr <- renderText(
+    values$an.sse
+  )
+  
+  output$an.varTable <- renderTable({
+    req(values$data.var.an)
+    df <- data.frame(pair_n=round(values$data.var.an$np,0),
+                     dist=round(values$data.var.an$dist,2), 
+                     gamma=round(values$data.var.an$gamma,2),
+                     dir=round(values$data.var.an$dir.hor,0))
+    gamma <- intToUtf8(947)
+    setNames(df, c("number of pairs", "distance", gamma,"direction"))
+  })
+  
+  
+  
+  ########
+  # ISOTROPIC variogram plot and calculation
   
   output$varPlot <- renderPlot({
     
@@ -1034,9 +1300,20 @@ server <- function(input, output, session) {
                                 ifelse(input$varType == "Linear", type <- "Lin", 
                                        ifelse(input$varType == "Pentaspherical", type <- "Pen", type <- "Bes"))))))
     
+    ifelse(input$varType2 == "Exponential", type2 <- "Exp", # <---- REVIEW
+           ifelse(input$varType2 == "Spherical", type2 <- "Sph", 
+                  ifelse(input$varType2 == "Gaussian", type2 <- "Gau", 
+                         ifelse(input$varType2 == "Circular", type2 <- "Cir", 
+                                ifelse(input$varType2 == "Linear", type2 <- "Lin", 
+                                       ifelse(input$varType2 == "Pentaspherical", type2 <- "Pen", type2 <- "Bes")))))) # <---- REVIEW
+    
+    
     if (input$fit == "Automatic"){
       cutoff0 <- max(spDists(coordinates(data), longlat = FALSE))/3 # diagonale/3, come in gstat
       range <- cutoff0/3
+      
+      
+      
       if (type=="Exp") range <- range/3
       if (type=="Gau") range <- range/sqrt(3)
       if (type=="Bes") range <- range/4
@@ -1047,6 +1324,39 @@ server <- function(input, output, session) {
                                                           ifelse(input$varType == "Gaussian", round(data.vm$range[2]*sqrt(3), 1),
                                                                  ifelse(input$varType == "Bessel", round(data.vm$range[2]*4, 1), 
                                                                         round(data.vm$range[2], 1)) ) ) )
+      
+      updateNumericInput(session, "an.nugget", value = round(data.vm$psill[1],2))
+      updateNumericInput(session, "an.psill", value = round(data.vm$psill[2],2))
+      updateNumericInput(session, "an.range", value = ifelse(input$varType == "Exponential", round(data.vm$range[2]*3, 1),
+                                                             ifelse(input$varType == "Gaussian", round(data.vm$range[2]*sqrt(3), 1),
+                                                                    ifelse(input$varType == "Bessel", round(data.vm$range[2]*4, 1), 
+                                                                           round(data.vm$range[2], 1)) ) ) )
+      
+      if (input$nes=="Nested") { # <---- REVIEW
+        cutoff0 <- max(spDists(coordinates(data), longlat = FALSE))/3 # diagonale/3, come in gstat
+        range <- cutoff0/3
+        if (type=="Exp") range <- range/3
+        if (type=="Gau") range <- range/sqrt(3)
+        if (type=="Bes") range <- range/4
+        
+        if (type2=="Exp") range <- range/3
+        if (type2=="Gau") range <- range/sqrt(3)
+        if (type2=="Bes") range <- range/4
+        data.var.mod1 <- vgm(1, type, range/2, 1)
+        data.var.mod2 <- vgm(0.5, type2, range, add.to = data.var.mod1)
+        data.vm <- fit.variogram(data.var, model=data.var.mod2); print(data.vm)
+        updateNumericInput(session, "nugget", value = round(data.vm$psill[1],2))
+        updateNumericInput(session, "psill", value = round(data.vm$psill[2],2))
+        updateNumericInput(session, "range", value = ifelse(input$varType == "Exponential", round(data.vm$range[2]*3, 1),
+                                                            ifelse(input$varType == "Gaussian", round(data.vm$range[2]*sqrt(3), 1),
+                                                                   ifelse(input$varType == "Bessel", round(data.vm$range[2]*4, 1), 
+                                                                          round(data.vm$range[2], 1)) ) ) )
+        updateNumericInput(session, "psill2", value = round(data.vm$psill[3],2))
+        updateNumericInput(session, "range2", value = ifelse(input$varType2 == "Exponential", round(data.vm$range[3]*3, 1),
+                                                             ifelse(input$varType2 == "Gaussian", round(data.vm$range[3]*sqrt(3), 1),
+                                                                    ifelse(input$varType2 == "Bessel", round(data.vm$range[3]*4, 1), 
+                                                                           round(data.vm$range[3], 1)) ) ) )
+      } # <---- REVIEW
       #updateNumericInput(session, "lag_dist", value = input$lag_dist) #ave.dist) ## <-- 
     }
     
@@ -1058,13 +1368,31 @@ server <- function(input, output, session) {
       data.vm <- fit.variogram(data.var, model=vgm(input$psill, type, range, input$nugget),
                                fit.sills = c(FALSE, FALSE), fit.ranges = c(FALSE, FALSE))
       
-      # SSE calculation:
-      fitted_values <- variogramLine(data.vm, dist_vector = data.var$dist)
-      residual <- fitted_values$gamma-data.var$gamma
-      weight <- data.var$np/(data.var$dist^2)
-      attr(data.vm, "SSErr") <- sum(weight*residual^2)
+      if (input$nes=="Nested") { # <---- REVIEW
+        range1 <- input$range
+        range2 <- input$range2
+        
+        if (type=="Exp") range1 <- input$range/3
+        if (type=="Gau") range1 <- input$range/sqrt(3)
+        if (type=="Bes") range1 <- input$range/4
+        
+        if (type2=="Exp") range2 <- input$range2/3
+        if (type2=="Gau") range2 <- input$range2/sqrt(3)
+        if (type2=="Bes") range2 <- input$range2/4
+        data.var.mod1 <- vgm(input$psill, type, range1, input$nugget)
+        data.var.mod2 <- vgm(input$psill2, type2, range2, add.to = data.var.mod1)
+        data.vm <- fit.variogram(data.var, model=data.var.mod2, fit.sills = c(FALSE, FALSE), fit.ranges = c(FALSE, FALSE)) # <---- REVIEW
+      } # <---- REVIEW
       
     }
+    
+    
+    # SSE calculation:
+    fitted_values <- variogramLine(data.vm, dist_vector = data.var$dist)
+    residual <- fitted_values$gamma-data.var$gamma
+    weight <- data.var$np/(data.var$dist^2)
+    attr(data.vm, "SSErr") <- sum(weight*residual^2)
+    
     
     data.vm.line <- variogramLine(data.vm, maxdist = max(data.var$dist)+2*max(data.var$dist)/min(data.var$dist)) # 800 # maxdist = cutoff
     
@@ -1083,15 +1411,39 @@ server <- function(input, output, session) {
                        in automatic mode or use the manual fit.", type = "error",duration = NULL)
     } else {
       # Generate the plot if the parameter is within the threshold
-      plot(data.var$dist, data.var$gamma, ylim=c(0, data.vm$psill[1]+data.vm$psill[2]+0.2), 
+      if (input$nes=="Nested"){ # <-------- REVIEW
+        y_max <- data.vm$psill[1]+data.vm$psill[2]+data.vm$psill[3]+0.2
+      } else {
+        y_max <- data.vm$psill[1]+data.vm$psill[2]+0.2
+      } # <-------- REVIEW
+      
+      par(mar = c(5.1, 5.1, 4.1, 2.1))
+      
+      plot(data.var$dist, data.var$gamma, ylim=c(0, y_max), # <-------- REVIEW
            xaxs="i", yaxs="i", cex=1.4,  xlim=c(0, max(data.var$dist)+max(data.var$dist)/min(data.var$dist)), 
            xlab= "Distance (m)", ylab=expression(paste("Semivariance  ", gamma)), main="Experimental variogram and variogram model")
       lines(data.vm.line$dist, data.vm.line$gamma, lwd=1.5)
-      abline(h = data.vm$psill[1]+data.vm$psill[2], lty=2, lwd=1.5)
+      if (input$nes=="Nested"){ # <-------- REVIEW
+        abline(h = data.vm$psill[1]+data.vm$psill[2]+data.vm$psill[3], lty=2, lwd=1.5)
+      } else {
+        abline(h = data.vm$psill[1]+data.vm$psill[2], lty=2, lwd=1.5)
+      } # <-------- REVIEW
+      
       box(lwd=2)
     }
-    
     values$var.list <- list(data,data.vm,data.qq)
+    
+    if(values$var$np[1] < 30){
+      showNotification("A number of pairs > 30 is recommended (Journel and Huijbregts, 1978)",
+                       type =  "message",duration =NULL,)
+      
+    }
+    
+    if(input$nugget > 0.5){
+      showNotification("A nugget value > 0.5 might indicate poor spatial continuity at short scale. Please consider removing any outliers or using a robust variogram estimator.",
+                       type =  "message",duration =NULL,)
+
+    }
     
   })
   
@@ -1115,12 +1467,24 @@ server <- function(input, output, session) {
     
   )
   
+  output$an.calc.dist <- renderText(
+    if(is.na(input$an.lag_dist)){
+      req(values$an.calc.dist)
+      round(values$an.calc.dist,digits = 1)  
+    }else{
+      "-"
+    }
+    
+  )
+  
+  
   ########
   # Plot variogram cloud
   
   output$varCloudPlot <- renderPlot({
     req(values$var)
     par(cex.axis=1.2, cex.lab=1.4, cex.main=1.4, family="Arial")
+    par(mar = c(5.1, 5.1, 4.1, 2.1))
     plot(x=0, y=0, type="n", ylim=c(0, max(values$var.cloud$gamma)),
          xaxs="i", yaxs="i",  xlim=c(0, max(values$var$dist)+max(values$var$dist)/min(values$var$dist)), 
          xlab= "Distance (m)", ylab=expression(paste("Semivariance  ", gamma)), main="Variogram cloud")
@@ -1151,6 +1515,21 @@ server <- function(input, output, session) {
     }
   )
   
+  output$an.download_table <- downloadHandler(
+    filename = function() {
+      "Variogram_table.csv" # Default file name
+    },
+    content = function(file) {
+      df <- data.frame(pair_n=round(values$data.var.an$np,0),
+                       dist=round(values$data.var.an$dist,2), 
+                       gamma=round(values$data.var.an$gamma,2),
+                       dir=round(values$data.var.an$dir.hor,0))
+      gamma <- intToUtf8(947)
+      setNames(df, c("number of pairs", "distance", gamma,"direction"))
+      write.csv(df, file, row.names = F) # Save with row names
+    }
+  )
+  
   ########
   # Download handler for saving the variogram plots as PDF
   
@@ -1178,6 +1557,23 @@ server <- function(input, output, session) {
     }
   )
   
+  output$an.download_plot <- downloadHandler(
+    filename = function() {
+      "Variogram_plot.pdf"
+    },
+    content = function(file) {
+      pdf(file, width = 7, height = 6) # Start a PDF device # Increase canvas size
+      
+      # Adjust margins to avoid cutting off labels
+      par(mfrow = c(2, 1))
+      par(mar = c(5, 5, 2, 2) + 0.1) # Bottom, Left, Top, Right
+      print(plot(values$var.list[[4]], threshold = 5))
+      
+      print(plot(values$data.var.an, values$data.vm.an))
+      
+      dev.off() # Close the PDF device
+    }
+  )
   
   
   
@@ -1185,11 +1581,14 @@ server <- function(input, output, session) {
   # 5 PANEL sGs
   #############
   
+  
   ########
   # Run sGS
   
   observeEvent(input$runsgs,{
     
+    
+    sel.vartab <- input$vardirtab
     
     showNotification("Calculating Sequential Gaussian Simulations... the results will be ready shortly",
                      type =  "message",duration =NULL,)
@@ -1258,11 +1657,15 @@ server <- function(input, output, session) {
                           y=df.sims$y,
                           z=rowMeans(df.sims[,-1:-2],na.rm = T))
     
+    
+    
     if(!is.na(input$prob.thres)){
       df.mean <- cbind(df.mean,data.frame(p=1-apply(df.sims, 1, 
                                                     function(x){x.ecdf=ecdf(as.numeric(x));x.ecdf(input$prob.thres)})))
     }
     
+    
+    df.sd <- apply(df.sims[,-1:-2],MARGIN = 1,FUN = sd,na.rm = T)
     
     # Output and standard deviation
     gas.out.tot <- sum(df.mean$z*(input$dx*input$dy))/1e+06
@@ -1272,17 +1675,23 @@ server <- function(input, output, session) {
     values$CO2out <- c(gas.out.tot, gas.out.sd,area.out)
     
     if (is.na(input$epsg.in)) {
+      #epsg=paste0("+init=epsg:",input$epsg.out)
       epsg=paste0("epsg:",input$epsg.out)
     }else{
+      #epsg=paste0("+init=epsg:",input$epsg.in)
       epsg=paste0("epsg:",input$epsg.in)
     }
     
+    #values$raster <- rasterFromXYZ(df.mean[,1:3],crs=CRS(epsg))
     values$raster <- rast(df.mean[,1:3],type="xyz",crs=epsg)
+    values$raster.sd <- rast(cbind(df.mean[,1:2],df.sd),type="xyz",crs=epsg)
     
     if (is.na(input$prob.thres)) {
       df.mean[,4] <- NA
+      #values$raster.p <- rasterFromXYZ(df.mean[,c(1:2,4)],crs=CRS(epsg))
       values$raster.p <- rast(df.mean[,c(1:2,4)],type="xyz",crs=epsg)
     }else{
+      #values$raster.p <- rasterFromXYZ(df.mean[,c(1:2,4)],crs=CRS(epsg))
       values$raster.p <- rast(df.mean[,c(1:2,4)],type="xyz",crs=epsg)
     }
   })
@@ -1311,6 +1720,7 @@ server <- function(input, output, session) {
   
   output$mymap2 <- renderLeaflet({
     
+    
     #req(values$df.poly)
     req(values$raster)
     
@@ -1327,7 +1737,11 @@ server <- function(input, output, session) {
     updateNumericInput(session,"zmin",value =round(min(as.matrix(values$raster),na.rm=T), 1) )
     updateNumericInput(session,"zmax",value =round(max(as.matrix(values$raster),na.rm=T), 1) )
     
+    updateNumericInput(session,"zmin2",value =round(min(as.matrix(values$raster.sd),na.rm=T), 1) )
+    updateNumericInput(session,"zmax2",value =round(max(as.matrix(values$raster.sd),na.rm=T), 1) )
+    
     pal <-  colorNumeric( viridis::viridis(10), (as.matrix(values$raster)),na.color = "transparent")
+    pal.sd <-  colorNumeric( viridis::viridis(10), (as.matrix(values$raster.sd)),na.color = "transparent")
     # pal.p <-  colorNumeric( viridis::viridis(10), (as.matrix(values$raster.p)),na.color = "transparent")
     
     if (is.na(input$prob.thres)) {
@@ -1348,13 +1762,14 @@ server <- function(input, output, session) {
         completedColor = "#7D4479") %>%
       addLayersControl(position ="topleft",
                        baseGroups = c("Esri World Imagery", "OpenStreetMap"),
-                       overlayGroups = c("Mean map","Probability map","Points"),
+                       overlayGroups = c("Points"),
                        options = layersControlOptions(collapsed = T)) %>%
       addCircleMarkers( lng=data$X,
                         lat=data$Y,label = data$Z,
                         color="black",radius=1,group = "Points") %>%
-      addRasterImage(values$raster, colors = pal,group = "Mean map",project=FALSE) %>%
-      addRasterImage(values$raster.p, colors = pal.p,group = "Probability map",project=FALSE) %>%
+      addRasterImage(values$raster.p, colors = pal.p,project=FALSE) %>%
+      addRasterImage(values$raster.sd, colors = pal.sd,project=FALSE) %>%
+      addRasterImage(values$raster, colors = pal,project=FALSE) %>%
       leaflet::addLegend(pal = pal, values = as.matrix(values$raster) ,labels = as.matrix(values$raster),opacity = 0.8,title = names(values$df[, input$columns])[3]) %>%
       hideGroup("Probability map")
   }
@@ -1403,7 +1818,7 @@ server <- function(input, output, session) {
                  
                  
                  pal <-  colorNumeric(selected_palette, (as.matrix(raster)),alpha = T,na.color = "transparent")
-                 
+                 pal.e <-  colorNumeric(selected_palette , (as.matrix(values$raster.sd)),na.color = "transparent")
                  
                  #clearMarkers(map = myLeafletProxy) %>% 
                  leafletProxy("mymap2", session) %>%
@@ -1414,8 +1829,9 @@ server <- function(input, output, session) {
                                      lat=data$Y,label = data$Z,
                                      color="black",radius=1,group = "Points") %>%
                    removeImage(layerId = "r_mean") %>%
+                   removeImage(layerId = "r_sd") %>%
                    removeImage(layerId = "r_prob") %>%
-                   addRasterImage(raster, colors = pal,group = "Mean map",layerId = "r_mean", opacity = input$raster.opacity,project=FALSE) %>%
+                   addRasterImage(raster, colors = pal,layerId = "r_mean", opacity = input$raster.opacity,project=FALSE) %>%
                    leaflet::addLegend(pal = pal, values = as.matrix(raster) ,labels = as.matrix(raster),opacity = 0.8,title = names(values$df[, input$columns])[3])
                  
                }
@@ -1470,9 +1886,65 @@ server <- function(input, output, session) {
                                      lat=data$Y,label = data$Z,
                                      color="black",radius=1,group = "Points") %>%
                    removeImage(layerId = "r_mean") %>%
+                   removeImage(layerId = "r_sd") %>%
                    removeImage(layerId = "r_prob") %>%
-                   addRasterImage(raster.p, colors = pal.p,group = "Probability map",layerId =  "r_prob",opacity = input$raster.opacity1,project=FALSE) %>%
-                   leaflet::addLegend(pal = pal.p, values = as.matrix(raster.p) ,labels = as.matrix(raster.p),opacity = 0.8,title = names(values$df[, input$columns])[3])
+                   addRasterImage(raster.p, colors = pal.p,layerId = "r_prob",opacity = input$raster.opacity1,project=FALSE) %>%
+                   leaflet::addLegend(pal = pal.p, values = as.matrix(raster.p) ,labels = as.matrix(raster.p),opacity = 0.8,title = paste0("Pr ",names(values$df[, input$columns])[3]," > ", input$prob.thres))
+                 
+               }
+  )
+  
+  
+  # Refresh Error Map
+  observeEvent(input$refresh2
+               | values$selected.tab
+               | as.numeric(factor(input$palette1)),{
+                 
+                 
+                 if (is.null(values$raster.sd)){
+                   return(NULL)
+                 }
+                 
+                 data <- values$df[input$columns]
+                 data <- na.omit(data)
+                 names(data) <- c("X", "Y", "Z")
+                 
+                 
+                 if (!is.na(input$epsg.in)) {
+                   data[,c("X","Y")] <- coord.trans(data[,c("X","Y")], epsg.in = input$epsg.in, epsg.out =4326)
+                 }
+                 
+                 
+                 raster.sd <- values$raster.sd
+                 
+
+                 raster.sd[raster.sd<input$zmin2] <- input$zmin2
+                 raster.sd[raster.sd>input$zmax2] <- input$zmax2
+                 
+                 # Dynamic palette selection
+                 selected_palette <- switch(input$palette1,
+                                            "viridis" = viridis::viridis(10),
+                                            "rainbow" = fields::tim.colors(10),
+                                            "magma" = viridis::magma(10),
+                                            "plasma" = viridis::plasma(10),
+                                            "cividis" = viridis::cividis(10)
+                 )
+                 
+                 pal.sd <-  colorNumeric(selected_palette , (as.matrix(raster.sd)),na.color = "transparent")
+                 
+                 #clearMarkers(map = myLeafletProxy) %>% 
+                 leafletProxy("mymap2", session) %>%
+                   clearControls() %>%
+                   addProviderTiles('OpenStreetMap.Mapnik',group = 'Open Street Map') %>%
+                   addProviderTiles('Esri.WorldImagery',group = 'Esri World Imagery') %>%
+                   addCircleMarkers( lng=data$X,
+                                     lat=data$Y,label = data$Z,
+                                     color="black",radius=1,group = "Points") %>%
+                   removeImage(layerId = "r_mean") %>%
+                   removeImage(layerId = "r_sd") %>%
+                   removeImage(layerId = "r_prob") %>%
+                   addRasterImage(raster.sd, colors = pal.sd,layerId = "r_sd",opacity = input$raster.opacity2,project=FALSE) %>%
+                   leaflet::addLegend(pal = pal.sd, values = as.matrix(raster.sd) ,labels = as.matrix(raster.sd),opacity = 0.8,title = paste0("Sd ",names(values$df[, input$columns])[3]))
                  
                }
   )
@@ -1503,6 +1975,136 @@ server <- function(input, output, session) {
       raster::writeRaster(values$raster.p, filename = file, overwrite=T)
     }
   )
+  
+  ## Download Error map as raster
+  output$downloadRaster2 <- downloadHandler(
+    filename = function() {
+      # Use the selected dataset as the suggested file name
+      paste0(format(Sys.time(),"%Y%m%d%H%M%S"), "_error_raster.tif")
+    },
+    content = function(file) {
+      # Write the dataset to the `file` that will be downloaded
+      #write.csv(values$raster, file,row.names = F)
+      raster::writeRaster(values$raster.sd, filename = file, overwrite=T)
+    }
+  )
+  
+  ####
+  # Help
+  
+  observeEvent(input$help.load,{
+    showModal(modalDialog(size = "l",
+                          title = "Help",
+                          helpText("1) Select the appropriate column separator (comma by default) and upload the csv file.",br(),br(),
+                                   "2) Select 3 columns in the following order: longitude, latitude, and a numerical variable (e.g., soil CO₂ flux or T)",br(),br(),
+                                   "3) Enter the correct EPSG code:",br(),
+                                   "  3a) If longitude and latitude are decimal WGS84, enter the output EPSG to convert to UTM 
+                                               (a list of EPSG codes is available at https://epsg.io/).",br(),
+                                   "  3b) If longitude and latitude are not decimal WGS84, enter the correct input EPSG code and leave the output EPSG field empty.",br(),br(),
+                                   "4) Draw a rectangular or polygonal perimeter on the map (using the buttons below the layer selection) to enclose the data to be processed. Alternatively, you can upload a .csv file containing the polygon vertices.", br(),br(),
+                                   "  * To ensure user privacy, all uploaded data are processed locally and are not stored on any server; data are automatically discarded when the session ends or the browser is refreshed.",
+                                   br(),br()
+                          ),
+                          
+                          easyClose = TRUE,
+                          footer = NULL
+    ))
+    
+  })
+  
+  observeEvent(input$help.mix,{
+    showModal(modalDialog(size = "l",
+                          title = "Help",
+                          helpText("This panel enables us to model mixtures of populations describing the empirical distribution of the data.",br(),br(),
+                                   "By default, the data distribution is transformed into lognormal space and automatically modeled using two populations, identifyied through unsupervised clustering. 
+                                               The goodness of fit is measured using the log-likelihood.",br(),br(),
+                                   "In all Fit modes (Automatic, Initial Guess, and Manual), you can adjust the number of populations used to fit the data distribution.",br(),
+                                   "  In Initial Guess mode, you can enter initial values of Mean and St.Dev. of each population. These values are used as starting points to optimize the fit.", br(),
+                                   "  In Manual mode, you can explicitly set and constrain the Mean and St.Dev. values for each population.",
+                                   br(),br(),
+                                   "After maky any changes, you must click the 'Calculate populations' button. The app will return the Mean, St.Dev. and proportion (Lambda) of each population, calculated through a Monte Carlo procedure.",
+                                   br(),br(),
+                                   
+                          ),
+                          
+                          easyClose = TRUE,
+                          footer = NULL
+    ))
+    
+  })
+  
+  observeEvent(input$help.omni,{
+    showModal(modalDialog(size = "l",
+                          title = "Help",
+                          helpText("By default, the experimental variogram is automatically fitted using a spherical variogram model and weighted least squares. 
+                                   The goodness of fit is measured by the Sum of Squared Errors (SSE). 
+                                   In both Automatic and Manual modes, you can modify the variogram model, lag distance, and enable the robust estimator option.", br(), br(),
+                                   "By choosing the Manual mode, you are also able to
+                                  adjust the nugget, partial sill, and range of the variogram model.",br(), br(),
+                                   "The robust variogram estimator (Cressie, 1993) helps reduce the nugget effect in the presence of outliers.", br(), br(),
+                                   "The lag distance defines the width of the intervals into which pairs of data points are grouped to estimate semivariance. 
+                                   It is calculated automatically, but you can change it. As a rule of thumb, we recommend choosing a lag distance at least 5 meters 
+                                   larger than the average distance between points. For example, if your grid spacing is 50 m, use a lag distance of 55 m. 
+                                   In any case, the lag distance should ensure a minimum of 30 point pairs per lag class (Journel and Huijbregts, 1978).",br(),br(),
+                                   "You can also model the sum of two variogram models by selecting the Nested option. 
+                                   As with single variogram models, nested structures can be fitted in both automatic and manual modes."
+                          ),
+                          
+                          easyClose = TRUE,
+                          footer = NULL
+    ))
+    
+  })
+  
+  observeEvent(input$help.anis,{
+    showModal(modalDialog(size = "l",
+                          title = "Help",
+                          helpText("Anisotropy can only be modeled in manual mode. By default, the following directions are selected: N (0°), NE (45°), E (90°), and SE (135°).
+                                   You can inspect the variogram map to identify the preferential directions of spatial continuity and manually update the four directions (separated by commas).
+                                   The variograms for these four directions are displayed below the variogram map.", br(), br(),
+                                 "Next, you need to set the main direction (i.e., the direction with the largest range) and the anisotropy ratio, 
+                                 which is the ratio between the range in the main direction and the range in the direction perpendicular to it. By default, the Main Direction is set to 45° and the Anisotropy Ratio to 0.4.", br(), br(),
+                                 "Finally, manually adjust the variogram parameters (nugget, partial sill, and range — defined with respect to the main direction) to minimize the Sum of Squared Errors (SSE)."
+                          ),
+                        
+                          easyClose = TRUE,
+                          footer = NULL
+    ))
+    
+  })
+  
+  
+  observeEvent(input$help.sgs, {
+    showModal(modalDialog(
+      size = "l",
+      title = "Help",
+      helpText(
+        br(),
+        "In this panel, you can simulate the variable at unsampled locations using sequential Gaussian simulation (sGs) to construct mean, error, and probability heat maps.",
+        br(), br(),
+        "Delta X and Delta Y define the cell spacing for the simulation grid.",
+        br(), br(),
+        "By default, Delta X and Delta Y are set to 10 m, and the number of simulations is set to 100. When you click Run sGs, the software performs 100 simulations and averages the values at the center of each cell.",
+        "If you want to generate a probability map, you must specify a Probability Threshold before clicking Run sGs.",
+        "After a few seconds, the heat map of the target variable will be displayed.",
+        br(), br(),
+        "You can customize the color scale and transparency of the heat map by adjusting Z min, Z max, and Opacity, then clicking the Eye button to refresh the display.",
+        "By clicking the eye icon next to the Mean, Error, or Probability map, you can display the corresponding heat map.",
+        br(), br(),
+        "The Error map shows the standard deviation calculated for each cell across the 100 simulations.",
+        "The Probability map indicates the likelihood that the target variable exceeds the specified Probability Threshold.",
+        br(), br(),
+        "The resulting heat maps can also be downloaded as raster files.", 
+        br(), br(),
+        "Finally, by clicking the Calculate 2D Integral button, the app computes the double integral of the selected variable over the area defined in the Load Data panel, along with its uncertainty. 
+        These values reflect the mean and standard deviation of the outputs estimated for each n equiprobable realizations generated by sGs. 
+        In the case of soil CO2 flux data, or any other input variable measured in g m–2 d–1, sGs UnMix returns the total flux and its standard deviation in g d–1"
+      ),
+      easyClose = TRUE,
+      footer = NULL
+    ))
+  })
+  
   
   
 }
