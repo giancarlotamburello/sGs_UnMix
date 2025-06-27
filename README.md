@@ -25,6 +25,7 @@ install.packages("sp")
 install.packages("raster")
 install.packages("splancs")
 install.packages("terra")
+install.packages("viridis")
 ```
 
 <h1> User Guide </h1>
