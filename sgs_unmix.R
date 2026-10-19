@@ -1649,7 +1649,8 @@ server <- function(input, output, session) {
     message(end - start," elapsed")
     
     for (ii in 3:ncol(df.sims)) {
-      df.sims[,ii] <- approx(values$var.list[[3]]$x,values$var.list[[3]]$y,df.sims[,ii])$y
+      # Constant extrapolation for the values above the observed maximum value (rule = 2)
+      df.sims[,ii] <- approx(values$var.list[[3]]$x,values$var.list[[3]]$y,df.sims[,ii],rule = 2)$y
     }
     
     # Calcolo la media del flusso di Z di tutte le simulazioni
